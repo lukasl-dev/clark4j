@@ -1,3 +1,11 @@
 package dev.lukasl.clark4j.token
 
-internal enum class TokenType
+enum class TokenType {
+  Prefix,
+  Label,
+  Text,
+  Quote,
+  Illegal,
+  FlagName,
+  EOF;
+}
