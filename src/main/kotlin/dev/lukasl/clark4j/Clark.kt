@@ -39,29 +39,30 @@ class Clark(
 
   fun labelIgnoreCase(labelIgnoreCase: Boolean) = apply { this.labelIgnoreCase = labelIgnoreCase }
 
-  fun toFlags(): Map<Flag, Any?> = mutableMapOf<Flag, Any?>().also { flags ->
-    flags[Flag.INPUT] = this.input
+  fun toFlags(): Collection<Pair<Flag, Any?>> = mutableListOf<Pair<Flag, Any?>>().also { flags ->
+    flags.add(Pair(Flag.INPUT, "\"$input\""))
 
-    this.prefixes.forEach { flags[Flag.PREFIX] = it }
-    flags[Flag.PREFIX_IGNORE_CASE] = this.prefixIgnoreCase
+    this.prefixes.forEach { flags.add(Pair(Flag.PREFIX, "\"$it\"")) }
+    flags.add(Pair(Flag.PREFIX_IGNORE_CASE, this.prefixIgnoreCase))
 
-    this.labels.forEach { flags[Flag.LABEL] = it }
-    flags[Flag.LABEL_IGNORE_CASE] = this.labelIgnoreCase
+    this.labels.forEach { flags.add(Pair(Flag.LABEL, "\"$it\"")) }
+    flags.add(Pair(Flag.LABEL_IGNORE_CASE, this.labelIgnoreCase))
 
-    flags[Flag.ADVANCED] = true
-  }
+    flags.add(Pair(Flag.ADVANCED, true))
+  }.toList()
 
-  private fun toArguments(): Collection<String> = this.toFlags().entries.fold(LinkedList<String>()) { acc, entry ->
+  private fun toArguments(): Collection<String> = this.toFlags().fold(LinkedList<String>()) { acc, entry ->
     acc.also {
-      it.add(entry.key.flag)
-      it.add(entry.value.toString())
+      it.add(entry.first.flag)
+      it.add(entry.second.toString())
     }
   }.toList()
 
   @Throws(IOException::class)
   fun run(): Collection<Token> {
-    println("args: '${toArguments().joinToString(separator = ", ")}'")
-    val process = Runtime.getRuntime().exec((listOf(this.executable) + this.toArguments()).toTypedArray())
+    val args = (listOf(this.executable) + this.toArguments()).toTypedArray()
+    println(args.joinToString(separator = " "))
+    val process = Runtime.getRuntime().exec(args)
     val reader = InputStreamReader(process.inputStream)
 
     val tokens = this.jsonReader?.read(reader) ?: throw ClarkError("JsonReader cannot be null.")
