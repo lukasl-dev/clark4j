@@ -65,7 +65,7 @@ publishing {
       from(components["java"])
       group = "dev.lukasl"
       artifactId = "clark4j"
-      version = "0.1.3"
+      version = "0.1.4"
     }
   }
 }

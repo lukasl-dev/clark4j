@@ -61,7 +61,6 @@ class Clark(
   @Throws(IOException::class)
   fun run(): Collection<Token> {
     val args = (listOf(this.executable) + this.toArguments()).toTypedArray()
-    println(args.joinToString(separator = " "))
     val process = Runtime.getRuntime().exec(args)
     val reader = InputStreamReader(process.inputStream)
 
